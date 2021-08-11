@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"web_app/router"
+	"web_app/db"
 )
 
 func main(){
@@ -10,8 +10,9 @@ func main(){
 	//db.Link()
 	//db.CreatePage()
 	//handler.GetTotalNumber()
-	router.WebServer()
+	//router.WebServer()
 	//handler.Sequence("")
+	db.Transaction()
 
 }
 

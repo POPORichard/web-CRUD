@@ -143,13 +143,13 @@ func WebServer(){
 		log.Println(file.Filename)
 
 		path := "./tmp/"+no+"/"
-		dst := fmt.Sprintf(path+file.Filename)
+		dst := fmt.Sprintf(path+"file.txt")
 
 		os.MkdirAll(path, os.ModePerm)
 
 		c.SaveUploadedFile(file,dst)
 
-		handler.AddFileURL(no,"http://127.0.0.1:8080/download/"+no+"/"+file.Filename)
+		handler.AddFileURL(no,"http://127.0.0.1:8080/download/"+no+"/file.txt")
 
 		c.JSON(http.StatusOK, gin.H{
 			"status":fmt.Sprintf("'%s' uploaded success!", file.Filename),
@@ -161,6 +161,7 @@ func WebServer(){
 		no := c.Param("no")
 		filename := c.Param("filename")
 		path := "./tmp/"+no+"/"+filename
+
 
 		c.Header("Content-Type","application/txt")
 		c.Header("Content-Disposition","attachment; filename=\"" + filename + "\"")
