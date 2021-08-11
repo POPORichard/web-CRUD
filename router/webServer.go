@@ -149,7 +149,8 @@ func WebServer(){
 
 		c.SaveUploadedFile(file,dst)
 
-		handler.AddFileURL(no,path+file.Filename)
+		handler.AddFileURL(no,"http://127.0.0.1:8080/download/"+no+"/"+file.Filename)
+
 		c.JSON(http.StatusOK, gin.H{
 			"status":fmt.Sprintf("'%s' uploaded success!", file.Filename),
 		})
@@ -160,22 +161,6 @@ func WebServer(){
 		no := c.Param("no")
 		filename := c.Param("filename")
 		path := "./tmp/"+no+"/"+filename
-		//f,err := os.Open(path)
-		//if err!=nil{
-		//	c.JSON(http.StatusInternalServerError,gin.H{
-		//		"status":err.Error(),
-		//	})
-		//	return
-		//}
-		//defer f.Close()
-		//
-		//fd, err:= ioutil.ReadAll(f)
-		//if err!=nil{
-		//	c.JSON(http.StatusInternalServerError,gin.H{
-		//		"status":err.Error(),
-		//	})
-		//	return
-		//}
 
 		c.Header("Content-Type","application/txt")
 		c.Header("Content-Disposition","attachment; filename=\"" + filename + "\"")

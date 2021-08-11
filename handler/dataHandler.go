@@ -37,7 +37,7 @@ func SearchByName(name string)(data *model.Demo_order){
 
 	data.User_name = name
 
-	db.First(data)
+	db.Where("user_name=?",name).First(data)
 
 	return
 }
@@ -51,7 +51,9 @@ func SearchByNo(No string) *model.Demo_order{
 
 	data.Order_no = No
 
-	db.First(&data)
+	db.Where("Order_no=?", No).First(&data)
+
+	fmt.Println("======",data)
 
 
 	return &data
@@ -65,7 +67,7 @@ func Update(no string, newData *model.Demo_order)error{
 	var data model.Demo_order
 
 	data.Order_no = no
-	db.First(&data)
+	db.Where("Order_no=?",no).First(&data)
 
 	fmt.Println("-----",data)
 
