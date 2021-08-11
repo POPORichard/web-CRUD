@@ -3,7 +3,9 @@ package router
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"os"
 	"web_app/handler"
 	"web_app/model"
 )
@@ -108,16 +110,77 @@ func WebServer(){
 		//end := c.Query("end")
 		//lim := c.Query("lim")
 		key := c.Query("key")
+		search := c.DefaultQuery("search","")
 
 		datas,_ := handler.Sequence(key)
 
-		shows := make([]model.Demo_order_show,0,0)
+		if search !=""{
+			datas,_ = handler.Search(search,datas)
+		}
 
+
+		//格式化数据
+		shows := make([]model.Demo_order_show,0,0)
 		for _,data := range datas{
 			shows = append(shows,data.OrderToShow())
 		}
 
 		c.HTML(http.StatusOK, "index.html",shows)
+
+	})
+
+	//文件上传
+	r.POST("/upload/:no", func(c *gin.Context) {
+		no := c.Param("no")
+		file, err:= c.FormFile("f1")
+		if err != nil{
+			c.JSON(http.StatusInternalServerError,gin.H{
+				"status":err.Error(),
+			})
+			return
+		}
+
+		log.Println(file.Filename)
+
+		path := "./tmp/"+no+"/"
+		dst := fmt.Sprintf(path+file.Filename)
+
+		os.MkdirAll(path, os.ModePerm)
+
+		c.SaveUploadedFile(file,dst)
+
+		handler.AddFileURL(no,path+file.Filename)
+		c.JSON(http.StatusOK, gin.H{
+			"status":fmt.Sprintf("'%s' uploaded success!", file.Filename),
+		})
+	})
+
+	//下载文件
+	r.GET("/download/:no/:filename", func(c *gin.Context) {
+		no := c.Param("no")
+		filename := c.Param("filename")
+		path := "./tmp/"+no+"/"+filename
+		//f,err := os.Open(path)
+		//if err!=nil{
+		//	c.JSON(http.StatusInternalServerError,gin.H{
+		//		"status":err.Error(),
+		//	})
+		//	return
+		//}
+		//defer f.Close()
+		//
+		//fd, err:= ioutil.ReadAll(f)
+		//if err!=nil{
+		//	c.JSON(http.StatusInternalServerError,gin.H{
+		//		"status":err.Error(),
+		//	})
+		//	return
+		//}
+
+		c.Header("Content-Type","application/txt")
+		c.Header("Content-Disposition","attachment; filename=\"" + filename + "\"")
+		c.File(path)
+
 
 	})
 

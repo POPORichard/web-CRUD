@@ -2,6 +2,8 @@ package handler
 
 import (
 	"fmt"
+	"github.com/lithammer/fuzzysearch/fuzzy"
+	"sort"
 	"time"
 	"web_app/db"
 	"web_app/model"
@@ -183,7 +185,7 @@ func sequenceByTime(datas []model.Demo_order){
 			datas[i] = datas[target]
 			datas[target] = tmp
 			fmt.Println(i, "<=>", target)
-			fmt.Println(datas)
+			//fmt.Println(datas)
 		}
 		target = i
 	}
@@ -206,3 +208,55 @@ func Sequence(key string)([]model.Demo_order, error){
 	return datas,nil
 }
 
+//按条件对name搜索
+func Search(key string,datas []model.Demo_order)([]model.Demo_order, error){
+	lenth := len(datas)
+
+	//获取所有name并进行相似度排序
+	names := make([]string,0,GetTotalNumber())
+	for i :=range datas{
+		names = append(names,datas[i].User_name)
+	}
+	resule := fuzzy.RankFind(key,names)
+	sort.Sort(resule)
+
+	//对排序好的结果写入新切片
+	order_datas := make([]model.Demo_order,0,lenth)
+	for i := range resule{
+		order_datas = append(order_datas,datas[resule[i].OriginalIndex])
+	}
+
+	//furthest := func()int {
+	//	t:=0
+	//	for i := range resule{
+	//		if t< resule[i].Distance{
+	//			t = resule[i].Distance
+	//		}
+	//	}
+	//	return t
+	//}
+	//
+	//order_datas := make([]model.Demo_order,lenth,lenth)
+	//
+	//var t int64 = 0
+	//for f:=furthest();f>=0;f--{
+	//	for i:=range resule{
+	//		if f == resule[i].Distance{
+	//			order_datas[t] = datas[resule[i].OriginalIndex]
+	//			t++
+	//		}
+	//	}
+	//}
+
+	//fmt.Println(resule)
+
+	return order_datas,nil
+}
+
+//更新URL
+func AddFileURL(no,URL string){
+	order := SearchByNo(no)
+	URL = URL+";\n"
+	order.File_url = order.File_url + URL
+	Update(no,order)
+}
