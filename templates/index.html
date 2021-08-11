@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>dates</title>
+</head>
+<body>
+
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>user_name</th>
+            <th>amount</th>
+            <th>status</th>
+            <th>file_url</th>
+            <th>create_time</th>
+        </tr>
+        {{range .}}
+        <tr>
+            <th>{{ .ID }}</th>
+            <th>{{ .User_name }}</th>
+            <th>{{ .Amount }}</th>
+            <th>{{ .Status }}</th>
+            <th>{{ .File_url }}</th>
+            <th>{{ .CreateAt }}</th>
+        </tr>
+        {{end}}
+    </table>
+
+</body>
+</html>
