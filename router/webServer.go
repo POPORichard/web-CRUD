@@ -106,18 +106,21 @@ func WebServer(){
 	//获取数据列表
 	r.GET("/index", func(c *gin.Context) {
 
+		//分页
 		//start := c.DefaultQuery("start","0")
 		//end := c.Query("end")
 		//lim := c.Query("lim")
+		//page := c.DefaultQuery("page","1")
 		key := c.Query("key")
 		search := c.DefaultQuery("search","")
 
+		//按条件排序
 		datas,_ := handler.Sequence(key)
 
+		//模糊搜索name
 		if search !=""{
 			datas,_ = handler.Search(search,datas)
 		}
-
 
 		//格式化数据
 		shows := make([]model.Demo_order_show,0,0)

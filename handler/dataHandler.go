@@ -193,7 +193,7 @@ func sequenceByTime(datas []model.Demo_order){
 	}
 }
 
-//对order排序处理
+//对order按关键项进行排序处理
 func Sequence(key string)([]model.Demo_order, error){
 
 	datas,_ := GetAllData()
@@ -210,7 +210,7 @@ func Sequence(key string)([]model.Demo_order, error){
 	return datas,nil
 }
 
-//按条件对name搜索
+//按条件对name模糊搜索
 func Search(key string,datas []model.Demo_order)([]model.Demo_order, error){
 	lenth := len(datas)
 
@@ -228,34 +228,10 @@ func Search(key string,datas []model.Demo_order)([]model.Demo_order, error){
 		order_datas = append(order_datas,datas[resule[i].OriginalIndex])
 	}
 
-	//furthest := func()int {
-	//	t:=0
-	//	for i := range resule{
-	//		if t< resule[i].Distance{
-	//			t = resule[i].Distance
-	//		}
-	//	}
-	//	return t
-	//}
-	//
-	//order_datas := make([]model.Demo_order,lenth,lenth)
-	//
-	//var t int64 = 0
-	//for f:=furthest();f>=0;f--{
-	//	for i:=range resule{
-	//		if f == resule[i].Distance{
-	//			order_datas[t] = datas[resule[i].OriginalIndex]
-	//			t++
-	//		}
-	//	}
-	//}
-
-	//fmt.Println(resule)
-
 	return order_datas,nil
 }
 
-//更新URL
+//更新file_URL
 func AddFileURL(no,URL string){
 	order := SearchByNo(no)
 	URL = URL+";\n"
