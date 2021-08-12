@@ -14,6 +14,7 @@
             <th>status</th>
             <th>file_url</th>
             <th>create_time</th>
+            <th>Updated_time</th>
         </tr>
         {{range .}}
         <tr>
@@ -23,6 +24,7 @@
             <th>{{ .Status }}</th>
             <th>{{ .File_url }}</th>
             <th>{{ .CreateAt }}</th>
+            <th>{{ .UpdatedAt }}</th>
         </tr>
         {{end}}
     </table>

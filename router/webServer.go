@@ -6,8 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
+	"time"
 	"web_app/handler"
 	"web_app/model"
+	"web_app/server"
 )
 
 func WebServer(){
@@ -114,8 +117,16 @@ func WebServer(){
 		key := c.Query("key")
 		search := c.DefaultQuery("search","")
 
+		datas,err := handler.GetAllData()
+		if err !=nil{
+			c.JSON(http.StatusInternalServerError,gin.H{
+				"status":"error! can not get data!",
+			})
+		}
+
+
 		//按条件排序
-		datas,_ := handler.Sequence(key)
+		datas,_ = handler.Sequence(key,datas)
 
 		//模糊搜索name
 		if search !=""{
@@ -168,6 +179,22 @@ func WebServer(){
 
 		c.Header("Content-Type","application/txt")
 		c.Header("Content-Disposition","attachment; filename=\"" + filename + "\"")
+		c.File(path)
+
+	})
+
+	//下载excel
+	r.GET("/list", func(c *gin.Context) {
+		var wg sync.WaitGroup
+		wg.Add(1)
+
+		server.WriteToExcel(nil, &wg)
+
+		time.Sleep(time.Second)
+
+		path := "../list.xlsx"
+		c.Header("Content-Type","application/txt")
+		c.Header("Content-Disposition","attachment; filename=list.xlsx")
 		c.File(path)
 
 

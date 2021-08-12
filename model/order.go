@@ -23,8 +23,9 @@ type Demo_order_show struct {
 	Status string
 	File_url string
 	CreateAt string
-}
+	UpdatedAt string
 
+}
 //判断结构体是否为空
 func (dorder Demo_order)IsEmpty() bool{
 	return reflect.DeepEqual(dorder, Demo_order{})
@@ -40,6 +41,7 @@ func (order Demo_order)OrderToShow() Demo_order_show{
 	show.Status = order.Status
 	show.File_url = order.File_url
 	show.CreateAt = order.Model.CreatedAt.Format("2006-01-02 15:04:05")
+	show.UpdatedAt = order.Model.UpdatedAt.Format("2006-01-02 15:04:05")
 
 	return show
 }

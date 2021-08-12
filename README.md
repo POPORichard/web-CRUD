@@ -40,6 +40,10 @@
     search:模糊查找user_name
     
 列表中file_URL为文件下载地址
+
+表格下载
+    /list
+    GET
     
     
     
