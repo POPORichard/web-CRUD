@@ -101,21 +101,26 @@ func GetTotalNumber()int64{
 	return totalNumber
 }
 
-//获取指定长度数据
-func GetData(start,end int)([]model.Demo_order, error){
-	db := db.Link()
-	defer db.Close()
+//截取分页
+//若originData为nil则从数据库中获取数据
+func CutData(page,pageSize int64, originData []model.Demo_order)([]model.Demo_order, error){
 
-	var datas []model.Demo_order
-
-	result := db.Find(&datas)
-
-	if result.Error != nil{
-		fmt.Println("GetData error:",result.Error)
-		return nil,result.Error
+	if originData == nil{
+		db := db.Link()
+		defer db.Close()
+		originData,_ = GetAllData()
 	}
 
-	return datas, nil
+	largest := GetTotalNumber()
+	start := page*pageSize
+	end := page*(pageSize+1)
+	if end > largest{
+		end = largest
+		start = largest - pageSize
+	}
+	data := originData[start:end]
+
+	return data, nil
 }
 
 //获取所有数据

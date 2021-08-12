@@ -9,7 +9,7 @@ import (
 
 //该事务检测用户是否存有文件
 //若没有文件则将file_URL设为空
-func Transaction()error{
+func CheckEmptyURL()error{
 	db:=Link()
 	defer db.Close()
 	var datas []model.Demo_order
