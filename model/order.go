@@ -8,7 +8,7 @@ import (
 type Demo_order struct {
 
 	gorm.Model
-	Order_no string
+	Order_no string	`gorm:"unique"`
 	User_name string
 	Amount float64
 	Status string

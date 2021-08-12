@@ -4,11 +4,28 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"os"
+	"time"
 	"web_app/model"
 )
 
 //该事务检测用户是否存有文件
 //若没有文件则将file_URL设为空
+
+func AutoCheckEmptyURL() {
+	{
+		timer := time.Tick(time.Hour * 24)
+		for {
+			fmt.Println("-----start CheckEmptyURL------")
+			err := CheckEmptyURL()
+			if err != nil {
+				fmt.Println("Error  when check empty URL: ", err)
+			}
+			<-timer
+		}
+
+	}
+}
+
 func CheckEmptyURL()error{
 	db:=Link()
 	defer db.Close()
