@@ -113,14 +113,21 @@ func CutData(page,pageSize int64, originData []model.Demo_order)([]model.Demo_or
 
 	largest := GetTotalNumber()
 	start := page*pageSize
-	end := page*(pageSize+1)
+	end := (page+1)*pageSize
 	if end > largest{
 		end = largest
 		start = largest - pageSize
 	}
-	data := originData[start:end]
 
-	return data, nil
+	data := originData[start:end]		//这里不能直接传回data
+
+	returnData := make([]model.Demo_order,0,pageSize)
+
+	for i := range data{
+		returnData = append(returnData,data[i])
+	}
+
+	return returnData, nil
 }
 
 //获取所有数据
@@ -145,11 +152,11 @@ func GetAllData()([]model.Demo_order, error){
 //找到后面amount的最大项与本项交换位置
 //遍历到总数-1项，输出即为从大到小排序
 func sequenceByAmount(datas []model.Demo_order){
-	totalNum := GetTotalNumber()
-	var i int64
-	var t int64
+	totalNum := len(datas)
+	var i int
+	var t int
 	var Largest float64
-	var target int64
+	var target int
 	var tmp model.Demo_order
 
 	for i=0;i<totalNum-1;i++{
@@ -173,11 +180,11 @@ func sequenceByAmount(datas []model.Demo_order){
 
 //类似于以amount排序
 func sequenceByTime(datas []model.Demo_order){
-	totalNum := GetTotalNumber()
-	var i int64
-	var t int64
+	totalNum := len(datas)
+	var i int
+	var t int
 	var Largest time.Time
-	var target int64
+	var target int
 	var tmp model.Demo_order
 	for i=0;i<totalNum-1;i++{
 		Largest = datas[i].UpdatedAt
@@ -199,20 +206,22 @@ func sequenceByTime(datas []model.Demo_order){
 }
 
 //对order按关键项进行排序处理
-func Sequence(key string)([]model.Demo_order, error){
+func Sequence(key string,data []model.Demo_order)([]model.Demo_order, error){
 
-	datas,_ := GetAllData()
+	if data ==nil{
+		data,_ = GetAllData()
+	}
 
 	switch key {
 	case "amount":
-		sequenceByAmount(datas)
+		sequenceByAmount(data)
 	case "time":
-		sequenceByTime(datas)
+		sequenceByTime(data)
 	default:
 		fmt.Println("key :",key)
 	}
 
-	return datas,nil
+	return data,nil
 }
 
 //按条件对name模糊搜索
@@ -239,7 +248,6 @@ func Search(key string,datas []model.Demo_order)([]model.Demo_order, error){
 //更新file_URL
 func AddFileURL(no,URL string){
 	order := SearchByNo(no)
-	URL = URL+";\n"
-	order.File_url = order.File_url + URL
+	order.File_url = URL
 	Update(no,order)
 }
