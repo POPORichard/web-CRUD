@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func Link()(db *gorm.DB){
 }
 
 func CreatePage(){
-	var model model.Demo_order
+	var model model.DemoOrder
 
 	db := Link()
 	db.AutoMigrate(model)

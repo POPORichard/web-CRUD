@@ -5,41 +5,41 @@ import (
 	"reflect"
 )
 
-type Demo_order struct {
+type DemoOrder struct {
 
 	gorm.Model
-	Order_no string	`gorm:"unique"`
-	User_name string
-	Amount float64
-	Status string
-	File_url string
+	OrderNo  string `gorm:"unique"`
+	UserName string
+	Amount   float64
+	Status   string
+	FileUrl  string
 }
 
-type Demo_order_show struct {
-	ID uint
-	Order_no string
-	User_name string
-	Amount float64
-	Status string
-	File_url string
-	CreateAt string
+type DemoOrderShow struct {
+	ID        uint
+	OrderNo   string
+	UserName  string
+	Amount    float64
+	Status    string
+	FileUrl   string
+	CreateAt  string
 	UpdatedAt string
 
 }
 //判断结构体是否为空
-func (dorder Demo_order)IsEmpty() bool{
-	return reflect.DeepEqual(dorder, Demo_order{})
+func (order DemoOrder)IsEmpty() bool{
+	return reflect.DeepEqual(order, DemoOrder{})
 }
 
 //将demo_order转为展示格式
-func (order Demo_order)OrderToShow() Demo_order_show{
-	show := Demo_order_show{}
+func (order DemoOrder)OrderToShow() DemoOrderShow {
+	show := DemoOrderShow{}
 	show.ID = order.Model.ID
-	show.Order_no = order.Order_no
-	show.User_name = order.User_name
+	show.OrderNo = order.OrderNo
+	show.UserName = order.UserName
 	show.Amount = order.Amount
 	show.Status = order.Status
-	show.File_url = order.File_url
+	show.FileUrl = order.FileUrl
 	show.CreateAt = order.Model.CreatedAt.Format("2006-01-02 15:04:05")
 	show.UpdatedAt = order.Model.UpdatedAt.Format("2006-01-02 15:04:05")
 

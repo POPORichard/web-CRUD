@@ -4,22 +4,22 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"testing"
-	"web_app/db"
+	"web_app/database"
 	"web_app/model"
 )
 
-var testdata = model.Demo_order{
-	Model:     gorm.Model{},
-	Order_no:  "test",
-	User_name: "test",
-	Amount:    0,
-	Status:    "test",
-	File_url:  "test",
+var testdata = model.DemoOrder{
+	Model:    gorm.Model{},
+	OrderNo:  "test",
+	UserName: "test",
+	Amount:   0,
+	Status:   "test",
+	FileUrl:  "test",
 }
 
 func deleteTestData(){
-	db := db.Link()
-	db.Unscoped().Delete(&testdata)	//主键都没有怎么不会删错的？
+	db := database.Link()
+	db.Unscoped().Delete(&testdata)
 	db.Close()
 }
 
@@ -27,10 +27,10 @@ func TestNewData(t *testing.T) {
 	NewData(&testdata)
 	data := SearchByNo("test")
 	if data != nil{
-		if data.User_name != testdata.User_name ||
+		if data.UserName != testdata.UserName ||
 					data.Amount != testdata.Amount||
 					data.Status != testdata.Status||
-					data.File_url != testdata.File_url{
+					data.FileUrl != testdata.FileUrl {
 			t.Errorf("data different")
 
 		}
@@ -48,10 +48,10 @@ func TestAddFileURL(t *testing.T) {
 	AddFileURL("test","test_URL")
 	data := SearchByNo("test")
 	if data != nil{
-		if data.User_name != testdata.User_name ||
+		if data.UserName != testdata.UserName ||
 			data.Amount != testdata.Amount||
 			data.Status != testdata.Status||
-			data.File_url != "test_URL"{
+			data.FileUrl != "test_URL"{
 			t.Errorf("data different")
 
 		}
@@ -81,7 +81,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	for i := range searchData{
-		fmt.Println("searchdata no:",i,":",searchData[i].User_name)
+		fmt.Println("searchdata no:",i,":",searchData[i].UserName)
 	}
 	fmt.Println("please check!")
 }

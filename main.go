@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
-	"web_app/db"
+	"web_app/database"
 	"web_app/router"
 )
 
 func main(){
 	fmt.Println("start!")
 
-	db.CreatePage()
+	database.CreatePage()
 
-	go db.AutoCheckEmptyURL()
+	go database.AutoCheckEmptyURL()
 
-	router.WebServer()
+	r := router.WebServer()
+	r.Run(":8080")
 
 
 

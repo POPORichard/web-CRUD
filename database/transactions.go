@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"fmt"
@@ -29,20 +29,20 @@ func AutoCheckEmptyURL() {
 func CheckEmptyURL()error{
 	db:=Link()
 	defer db.Close()
-	var datas []model.Demo_order
+	var datas []model.DemoOrder
 
 	db.Transaction(func(tx *gorm.DB) error {
 		tx.Find(&datas)
 
 		for i := range datas{
-			path := "./tmp/"+datas[i].Order_no+"/file.txt"
+			path := "./tmp/"+datas[i].OrderNo +"/file.txt"
 			 _,err := os.Stat(path)
 			 fmt.Println(err)
 			 if err != nil{
 				if os.IsNotExist(err){
-					datas[i].File_url = ""
+					datas[i].FileUrl = ""
 				}else{
-					datas[i].File_url = "error"
+					datas[i].FileUrl = "error"
 				}
 				 tx.Save(&datas[i])
 			}

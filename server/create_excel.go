@@ -9,7 +9,7 @@ import (
 	"web_app/model"
 )
 
-func WriteToExcel(data []model.Demo_order, waitGroup *sync.WaitGroup)error{
+func WriteToExcel(data []model.DemoOrder, waitGroup *sync.WaitGroup)error{
 	defer waitGroup.Done()
 
 	fmt.Println("start create exlse!")
@@ -57,15 +57,15 @@ func WriteToExcel(data []model.Demo_order, waitGroup *sync.WaitGroup)error{
 		cell = row.AddCell()
 		cell.Value = data[i].UpdatedAt.Format("2006-01-02 15:04:05")
 		cell = row.AddCell()
-		cell.Value = data[i].Order_no
+		cell.Value = data[i].OrderNo
 		cell = row.AddCell()
-		cell.Value = data[i].User_name
+		cell.Value = data[i].UserName
 		cell = row.AddCell()
 		cell.Value = strconv.FormatFloat(data[i].Amount,'e',-1,64)
 		cell = row.AddCell()
 		cell.Value = data[i].Status
 		cell = row.AddCell()
-		cell.Value = data[i].File_url
+		cell.Value = data[i].FileUrl
 
 	}
 

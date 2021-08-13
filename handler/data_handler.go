@@ -5,15 +5,15 @@ import (
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"sort"
 	"time"
-	"web_app/db"
+	"web_app/database"
 	"web_app/model"
 )
 
 //创建数据
-func NewData(data *model.Demo_order)error{
+func NewData(data *model.DemoOrder)error{
 	fmt.Println("create new data")
 
-	db := db.Link()
+	db := database.Link()
 	defer db.Close()
 
 	result := db.Create(data)
@@ -31,11 +31,11 @@ func NewData(data *model.Demo_order)error{
 }
 
 //根据username搜索
-func SearchByName(name string)(data *model.Demo_order){
-	db := db.Link()
+func SearchByName(name string)(data *model.DemoOrder){
+	db := database.Link()
 	defer db.Close()
 
-	data.User_name = name
+	data.UserName = name
 
 	db.Where("user_name=?",name).First(data)
 
@@ -43,13 +43,13 @@ func SearchByName(name string)(data *model.Demo_order){
 }
 
 //根据NO搜索
-func SearchByNo(No string) *model.Demo_order{
-	db := db.Link()
+func SearchByNo(No string) *model.DemoOrder {
+	db := database.Link()
 	defer db.Close()
 
-	var data model.Demo_order
+	var data model.DemoOrder
 
-	data.Order_no = No
+	data.OrderNo = No
 
 	db.Where("Order_no=?", No).First(&data)
 
@@ -60,21 +60,21 @@ func SearchByNo(No string) *model.Demo_order{
 }
 
 //更新数据
-func Update(no string, newData *model.Demo_order)error{
-	db := db.Link()
+func Update(no string, newData *model.DemoOrder)error{
+	db := database.Link()
 	defer db.Close()
 
-	var data model.Demo_order
+	var data model.DemoOrder
 
-	data.Order_no = no
+	data.OrderNo = no
 	db.Where("Order_no=?",no).First(&data)
 
 	fmt.Println("-----",data)
 
-	data.User_name = newData.User_name
+	data.UserName = newData.UserName
 	data.Amount = newData.Amount
 	data.Status = newData.Status
-	data.File_url = newData.File_url
+	data.FileUrl = newData.FileUrl
 
 	result :=db.Save(&data)
 	if result.Error != nil{
@@ -89,10 +89,10 @@ func Update(no string, newData *model.Demo_order)error{
 
 //获取数据总数
 func GetTotalNumber()int64{
-	db := db.Link()
+	db := database.Link()
 	defer db.Close()
 
-	var datas model.Demo_order
+	var datas model.DemoOrder
 
 	result := db.Find(&datas)
 
@@ -103,10 +103,10 @@ func GetTotalNumber()int64{
 
 //截取分页
 //若originData为nil则从数据库中获取数据
-func CutData(page,pageSize int64, originData []model.Demo_order)([]model.Demo_order, error){
+func CutData(page,pageSize int64, originData []model.DemoOrder)([]model.DemoOrder, error){
 
 	if originData == nil{
-		db := db.Link()
+		db := database.Link()
 		defer db.Close()
 		originData,_ = GetAllData()
 	}
@@ -121,7 +121,7 @@ func CutData(page,pageSize int64, originData []model.Demo_order)([]model.Demo_or
 
 	data := originData[start:end]		//这里不能直接传回data
 
-	returnData := make([]model.Demo_order,0,pageSize)
+	returnData := make([]model.DemoOrder,0,pageSize)
 
 	for i := range data{
 		returnData = append(returnData,data[i])
@@ -131,11 +131,11 @@ func CutData(page,pageSize int64, originData []model.Demo_order)([]model.Demo_or
 }
 
 //获取所有数据
-func GetAllData()([]model.Demo_order, error){
-	db := db.Link()
+func GetAllData()([]model.DemoOrder, error){
+	db := database.Link()
 	defer db.Close()
 
-	var datas []model.Demo_order
+	var datas []model.DemoOrder
 
 	result := db.Find(&datas)
 
@@ -151,13 +151,13 @@ func GetAllData()([]model.Demo_order, error){
 //从前往后遍历所有data，将amount项与后面所有项目比较
 //找到后面amount的最大项与本项交换位置
 //遍历到总数-1项，输出即为从大到小排序
-func sequenceByAmount(datas []model.Demo_order){
+func sequenceByAmount(datas []model.DemoOrder){
 	totalNum := len(datas)
 	var i int
 	var t int
 	var Largest float64
 	var target int
-	var tmp model.Demo_order
+	var tmp model.DemoOrder
 
 	for i=0;i<totalNum-1;i++{
 		Largest = datas[i].Amount
@@ -179,13 +179,13 @@ func sequenceByAmount(datas []model.Demo_order){
 }
 
 //类似于以amount排序
-func sequenceByTime(datas []model.Demo_order){
+func sequenceByTime(datas []model.DemoOrder){
 	totalNum := len(datas)
 	var i int
 	var t int
 	var Largest time.Time
 	var target int
-	var tmp model.Demo_order
+	var tmp model.DemoOrder
 	for i=0;i<totalNum-1;i++{
 		Largest = datas[i].UpdatedAt
 		for t=i;t<totalNum;t++{
@@ -206,7 +206,7 @@ func sequenceByTime(datas []model.Demo_order){
 }
 
 //对order按关键项进行排序处理
-func Sequence(key string,data []model.Demo_order)([]model.Demo_order, error){
+func Sequence(key string,data []model.DemoOrder)([]model.DemoOrder, error){
 
 	if data ==nil{
 		data,_ = GetAllData()
@@ -225,19 +225,19 @@ func Sequence(key string,data []model.Demo_order)([]model.Demo_order, error){
 }
 
 //按条件对name模糊搜索
-func Search(key string,datas []model.Demo_order)([]model.Demo_order, error){
+func Search(key string,datas []model.DemoOrder)([]model.DemoOrder, error){
 	lenth := len(datas)
 
 	//获取所有name并进行相似度排序
 	names := make([]string,0,GetTotalNumber())
 	for i :=range datas{
-		names = append(names,datas[i].User_name)
+		names = append(names,datas[i].UserName)
 	}
 	resule := fuzzy.RankFind(key,names)
 	sort.Sort(resule)
 
 	//对排序好的结果写入新切片
-	order_datas := make([]model.Demo_order,0,lenth)
+	order_datas := make([]model.DemoOrder,0,lenth)
 	for i := range resule{
 		order_datas = append(order_datas,datas[resule[i].OriginalIndex])
 	}
@@ -248,6 +248,9 @@ func Search(key string,datas []model.Demo_order)([]model.Demo_order, error){
 //更新file_URL
 func AddFileURL(no,URL string){
 	order := SearchByNo(no)
-	order.File_url = URL
+	if order ==nil{
+		return
+	}
+	order.FileUrl = URL
 	Update(no,order)
 }

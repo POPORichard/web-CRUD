@@ -13,7 +13,7 @@ import (
 	"web_app/server"
 )
 
-func WebServer(){
+func WebServer() *gin.Engine{
 	fmt.Println("webServer is running")
 
 	r := gin.Default()
@@ -22,7 +22,6 @@ func WebServer(){
 	//测试
 	r.GET("/hello", func(c *gin.Context) {
 
-		//此处逻辑函数放handler
 		c.JSON(200,gin.H{
 			"message": 123,
 		})
@@ -30,11 +29,11 @@ func WebServer(){
 
 	//创建数据
 	r.POST("/json", func(c *gin.Context) {
-		var dorder model.Demo_order
-		if err := c.ShouldBindJSON(&dorder); err == nil{
-			fmt.Printf("\nget data: %#v\n", dorder)
+		var order model.DemoOrder
+		if err := c.ShouldBindJSON(&order); err == nil{
+			fmt.Printf("\nget data: %#v\n", order)
 
-			handler.NewData(&dorder)
+			handler.NewData(&order)
 			c.JSON(http.StatusCreated, gin.H{
 				"status":"get data",
 			})
@@ -45,27 +44,24 @@ func WebServer(){
 
 	//更新数据
 	r.PUT("/json/:no", func(c *gin.Context) {
-		var dorder model.Demo_order
+		var order model.DemoOrder
 		no := c.Param("no")
 
 		fmt.Println("-----",no)
 
+		if err := c.ShouldBindJSON(&order); err == nil && len(no) != 0{
+			fmt.Printf("\nget data: %#v\n", order)
 
-
-		if err := c.ShouldBindJSON(&dorder); err == nil && len(no) != 0{
-			fmt.Printf("\nget data: %#v\n", dorder)
-
-			if no != dorder.Order_no{
-				fmt.Println(dorder.Order_no)
+			if no != order.OrderNo {
+				fmt.Println(order.OrderNo)
 				fmt.Println("error order_NO has change")
 				c.JSON(http.StatusBadRequest, gin.H{
 					"status":"order_NO has change",
 				})
-
 				return
 			}
 
-			if err := handler.Update(no, &dorder); err ==nil{
+			if err := handler.Update(no, &order); err ==nil{
 				c.JSON(http.StatusCreated,gin.H{
 					"status":no+"has change",
 				})
@@ -80,7 +76,6 @@ func WebServer(){
 				"status":"error in data",
 			})
 		}
-
 	})
 
 	//获取某一数据
@@ -96,12 +91,13 @@ func WebServer(){
 		}else{
 			c.JSON(http.StatusOK,gin.H{
 				"status":"GET",
-				"order_no":data.Order_no,
-				"user_name":data.User_name,
+				"order_no":data.OrderNo,
+				"user_name":data.UserName,
 				"amount":data.Amount,
 				"data_status":data.Status,
-				"file_url":data.File_url,
+				"file_url":data.FileUrl,
 				"create_time":data.CreatedAt,
+				"update_time":data.UpdatedAt,
 			})
 		}
 	})
@@ -117,25 +113,24 @@ func WebServer(){
 		key := c.Query("key")
 		search := c.DefaultQuery("search","")
 
-		datas,err := handler.GetAllData()
+		allData,err := handler.GetAllData()
 		if err !=nil{
 			c.JSON(http.StatusInternalServerError,gin.H{
 				"status":"error! can not get data!",
 			})
 		}
 
-
 		//按条件排序
-		datas,_ = handler.Sequence(key,datas)
+		allData,_ = handler.Sequence(key, allData)
 
 		//模糊搜索name
 		if search !=""{
-			datas,_ = handler.Search(search,datas)
+			allData,_ = handler.Search(search, allData)
 		}
 
 		//格式化数据
-		shows := make([]model.Demo_order_show,0,0)
-		for _,data := range datas{
+		shows := make([]model.DemoOrderShow,0,0)
+		for _,data := range allData {
 			shows = append(shows,data.OrderToShow())
 		}
 
@@ -159,9 +154,21 @@ func WebServer(){
 		path := "./tmp/"+no+"/"
 		dst := fmt.Sprintf(path+"file.txt")
 
-		os.MkdirAll(path, os.ModePerm)
+		err = os.MkdirAll(path, os.ModePerm)
+		if err != nil{
+			c.JSON(http.StatusServiceUnavailable,gin.H{
+				"status":err.Error(),
+			})
+			return
+		}
 
-		c.SaveUploadedFile(file,dst)
+		err = c.SaveUploadedFile(file,dst)
+		if err != nil{
+			c.JSON(http.StatusServiceUnavailable,gin.H{
+				"status":err.Error(),
+			})
+			return
+		}
 
 		handler.AddFileURL(no,"http://127.0.0.1:8080/download/"+no+"/file.txt")
 
@@ -188,7 +195,12 @@ func WebServer(){
 		var wg sync.WaitGroup
 		wg.Add(1)
 
-		server.WriteToExcel(nil, &wg)
+		err := server.WriteToExcel(nil, &wg)
+		if err != nil{
+			c.JSON(http.StatusServiceUnavailable,gin.H{
+				"status":"unable to create excel err:"+err.Error(),
+			})
+		}
 
 		time.Sleep(time.Second)
 
@@ -200,5 +212,5 @@ func WebServer(){
 
 	})
 
-	r.Run(":8080")
+	return r
 }
