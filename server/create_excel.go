@@ -65,7 +65,7 @@ func WriteToExcel(data []model.DemoOrder, waitGroup *sync.WaitGroup)error{
 		cell = row.AddCell()
 		cell.Value = data[i].Status
 		cell = row.AddCell()
-		cell.Value = data[i].FileUrl
+		cell.Value = data[i].FileURL
 
 	}
 

@@ -9,7 +9,7 @@ import (
 	"web_app/model"
 )
 
-//创建数据
+//NewData 创建数据
 func NewData(data *model.DemoOrder)error{
 	fmt.Println("create new data")
 
@@ -22,15 +22,15 @@ func NewData(data *model.DemoOrder)error{
 
 		return result.Error
 
-	}else{
-		fmt.Println("Create success!")
 	}
+
+	fmt.Println("Create success!")
 
 	return nil
 
 }
 
-//根据username搜索
+//SearchByName 根据username搜索
 func SearchByName(name string)(data *model.DemoOrder){
 	db := database.Link()
 	defer db.Close()
@@ -42,24 +42,21 @@ func SearchByName(name string)(data *model.DemoOrder){
 	return
 }
 
-//根据NO搜索
+//SearchByNo 根据NO搜索
 func SearchByNo(No string) *model.DemoOrder {
 	db := database.Link()
 	defer db.Close()
-
 	var data model.DemoOrder
-
 	data.OrderNo = No
-
 	db.Where("Order_no=?", No).First(&data)
-
+	if data.ID == 0{
+		return nil
+	}
 	fmt.Println("======",data)
-
-
 	return &data
 }
 
-//更新数据
+//Update 更新数据
 func Update(no string, newData *model.DemoOrder)error{
 	db := database.Link()
 	defer db.Close()
@@ -68,26 +65,25 @@ func Update(no string, newData *model.DemoOrder)error{
 
 	data.OrderNo = no
 	db.Where("Order_no=?",no).First(&data)
-
-	fmt.Println("-----",data)
-
+	//此处应判断数据合法性
 	data.UserName = newData.UserName
 	data.Amount = newData.Amount
 	data.Status = newData.Status
-	data.FileUrl = newData.FileUrl
+	data.FileURL = newData.FileURL
+
 
 	result :=db.Save(&data)
 	if result.Error != nil{
 		fmt.Println("Update error : ",result.Error)
 		return result.Error
-	}else{
-		fmt.Println("Update success!")
 	}
+
+	fmt.Println("Update success!")
 
 	return nil
 }
 
-//获取数据总数
+//GetTotalNumber 获取数据总数
 func GetTotalNumber()int64{
 	db := database.Link()
 	defer db.Close()
@@ -101,7 +97,7 @@ func GetTotalNumber()int64{
 	return totalNumber
 }
 
-//截取分页
+//CutData 截取分页
 //若originData为nil则从数据库中获取数据
 func CutData(page,pageSize int64, originData []model.DemoOrder)([]model.DemoOrder, error){
 
@@ -130,7 +126,7 @@ func CutData(page,pageSize int64, originData []model.DemoOrder)([]model.DemoOrde
 	return returnData, nil
 }
 
-//获取所有数据
+//GetAllData 获取所有数据
 func GetAllData()([]model.DemoOrder, error){
 	db := database.Link()
 	defer db.Close()
@@ -147,7 +143,7 @@ func GetAllData()([]model.DemoOrder, error){
 	return datas, nil
 }
 
-//按amount排序
+//sequenceByAmount 按amount排序
 //从前往后遍历所有data，将amount项与后面所有项目比较
 //找到后面amount的最大项与本项交换位置
 //遍历到总数-1项，输出即为从大到小排序
@@ -178,7 +174,7 @@ func sequenceByAmount(datas []model.DemoOrder){
 	}
 }
 
-//类似于以amount排序
+//sequenceByTime 按update time排序
 func sequenceByTime(datas []model.DemoOrder){
 	totalNum := len(datas)
 	var i int
@@ -205,7 +201,7 @@ func sequenceByTime(datas []model.DemoOrder){
 	}
 }
 
-//对order按关键项进行排序处理
+//Sequence 对order按关键项进行排序处理
 func Sequence(key string,data []model.DemoOrder)([]model.DemoOrder, error){
 
 	if data ==nil{
@@ -224,7 +220,7 @@ func Sequence(key string,data []model.DemoOrder)([]model.DemoOrder, error){
 	return data,nil
 }
 
-//按条件对name模糊搜索
+//Search 按条件对name模糊搜索
 func Search(key string,datas []model.DemoOrder)([]model.DemoOrder, error){
 	lenth := len(datas)
 
@@ -237,20 +233,20 @@ func Search(key string,datas []model.DemoOrder)([]model.DemoOrder, error){
 	sort.Sort(resule)
 
 	//对排序好的结果写入新切片
-	order_datas := make([]model.DemoOrder,0,lenth)
+	orderDatas := make([]model.DemoOrder,0,lenth)
 	for i := range resule{
-		order_datas = append(order_datas,datas[resule[i].OriginalIndex])
+		orderDatas = append(orderDatas,datas[resule[i].OriginalIndex])
 	}
 
-	return order_datas,nil
+	return orderDatas,nil
 }
 
-//更新file_URL
+//AddFileURL 更新file_URL
 func AddFileURL(no,URL string){
 	order := SearchByNo(no)
 	if order ==nil{
 		return
 	}
-	order.FileUrl = URL
+	order.FileURL = URL
 	Update(no,order)
 }

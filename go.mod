@@ -16,6 +16,8 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tealeg/xlsx v1.0.5
 	github.com/ugorji/go v1.2.6 // indirect
+	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
+	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

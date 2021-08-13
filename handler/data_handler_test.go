@@ -14,7 +14,7 @@ var testdata = model.DemoOrder{
 	UserName: "test",
 	Amount:   0,
 	Status:   "test",
-	FileUrl:  "test",
+	FileURL:  "test",
 }
 
 func deleteTestData(){
@@ -30,7 +30,7 @@ func TestNewData(t *testing.T) {
 		if data.UserName != testdata.UserName ||
 					data.Amount != testdata.Amount||
 					data.Status != testdata.Status||
-					data.FileUrl != testdata.FileUrl {
+					data.FileURL != testdata.FileURL {
 			t.Errorf("data different")
 
 		}
@@ -51,7 +51,7 @@ func TestAddFileURL(t *testing.T) {
 		if data.UserName != testdata.UserName ||
 			data.Amount != testdata.Amount||
 			data.Status != testdata.Status||
-			data.FileUrl != "test_URL"{
+			data.FileURL != "test_URL"{
 			t.Errorf("data different")
 
 		}
