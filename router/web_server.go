@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -12,7 +13,7 @@ import (
 	"web_app/model"
 	"web_app/server"
 )
-
+// WebServer 网络服务
 func WebServer() *gin.Engine{
 	fmt.Println("webServer is running")
 
@@ -44,43 +45,98 @@ func WebServer() *gin.Engine{
 
 	//更新数据
 	r.PUT("/json/:no", func(c *gin.Context) {
-		var order model.DemoOrder
+
 		no := c.Param("no")
+		data := handler.SearchByNo(no)
 
-		fmt.Println("-----",no)
+		b,err := c.GetRawData()  // 从c.Request.Body读取请求数据
+		if err != nil {
+			fmt.Println("Error can't get data! err:",err)
+			return
+		}
+		var m map[string]interface{}
+		err = json.Unmarshal(b, &m)
+		if err != nil {
+			fmt.Println("Error can't get data! err:",err)
+			return
+		}
 
-		if err := c.ShouldBindJSON(&order); err == nil && len(no) != 0{
-			fmt.Printf("\nget data: %#v\n", order)
-
-			if no != order.OrderNo {
-				fmt.Println(order.OrderNo)
-				fmt.Println("error order_NO has change")
-				c.JSON(http.StatusBadRequest, gin.H{
-					"status":"order_NO has change",
-				})
-				return
-			}
-
-			if err := handler.Update(no, &order); err ==nil{
-				c.JSON(http.StatusCreated,gin.H{
-					"status":no+"has change",
-				})
-			}else{
-				c.JSON(http.StatusInternalServerError,gin.H{
-					"status":"server bad!",
-				})
-			}
-
-		}else{
+		orderNo,possess := m["orderNo"];if !possess{
+			fmt.Println("Can't get No from body")
 			c.JSON(http.StatusUnauthorized,gin.H{
 				"status":"error in data",
 			})
+			return
 		}
+
+		if orderNo != data.OrderNo {
+			fmt.Println("error order_NO is different")
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "order_NO is different with request",
+			})
+			return
+		}
+
+		userName, possess := m["userName"]
+		if possess {
+			data.UserName = userName.(string)
+		}
+
+		amount, possess := m["amount"]
+		if possess {
+			data.Amount = amount.(float64)
+		}
+
+		status, possess := m["status"]
+		if possess {
+			data.Status = status.(string)
+		}
+
+
+		if err := handler.Update(no, data); err == nil {
+			c.JSON(http.StatusCreated, gin.H{
+				"status": no + "has change",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "server bad!",
+			})
+		}
+
+		//if err := c.ShouldBindJSON(&order); err == nil && len(no) != 0{
+		//	fmt.Printf("\nget data: %#v\n", order)
+		//
+		//	if no != order.OrderNo {
+		//		fmt.Println(order.OrderNo)
+		//		fmt.Println("error order_NO has change")
+		//		c.JSON(http.StatusBadRequest, gin.H{
+		//			"status":"order_NO has change",
+		//		})
+		//		return
+		//	}
+		//
+		//	if err := handler.Update(no, &order); err ==nil{
+		//		c.JSON(http.StatusCreated,gin.H{
+		//			"status":no+"has change",
+		//		})
+		//	}else{
+		//		c.JSON(http.StatusInternalServerError,gin.H{
+		//			"status":"server bad!",
+		//		})
+		//	}
+		//
+		//}else{
+		//	c.JSON(http.StatusUnauthorized,gin.H{
+		//		"status":"error in data",
+		//	})
+		//}
 	})
 
 	//获取某一数据
 	r.GET("/json/:no", func(c *gin.Context) {
 		no := c.Param("no")
+
+		fmt.Println("===查询数据=== No:",no)
 
 		data := handler.SearchByNo(no)
 
@@ -95,7 +151,7 @@ func WebServer() *gin.Engine{
 				"user_name":data.UserName,
 				"amount":data.Amount,
 				"data_status":data.Status,
-				"file_url":data.FileUrl,
+				"file_url":data.FileURL,
 				"create_time":data.CreatedAt,
 				"update_time":data.UpdatedAt,
 			})
