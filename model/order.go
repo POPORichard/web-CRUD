@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"reflect"
 )
@@ -16,21 +17,22 @@ type DemoOrder struct {
 }
 //DemoOrderShow 用于展示的对象
 type DemoOrderShow struct {
-	ID        uint
-	OrderNo   string
-	UserName  string
-	Amount    float64
-	Status    string
-	FileURL   string
-	CreateAt  string
-	UpdatedAt string
+	ID        uint		`json:"id"`
+	OrderNo   string	`json:"order_no"`
+	UserName  string	`json:"user_name"`
+	Amount    float64	`json:"amount"`
+	Status    string	`json:"data_status"`
+	FileURL   string	`json:"file_url"`
+	CreateAt  string	`json:"create_at"`
+	UpdatedAt string	`json:"updated_at"`
 
 }
 //IsEmpty 判断结构体是否为空
-func (order DemoOrder)IsEmpty() bool{
-	if &order == nil {
-		return false
+func (order *DemoOrder)IsEmpty() bool{
+	if order == nil {
+		return true
 	}
+	fmt.Println("The empty data is:",order)
 	return reflect.DeepEqual(order, DemoOrder{})
 }
 

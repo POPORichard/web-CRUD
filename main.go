@@ -6,7 +6,7 @@ import (
 	"web_app/router"
 )
 
-func main(){
+func main() {
 	fmt.Println("start!")
 
 	database.CreatePage()
@@ -16,8 +16,4 @@ func main(){
 	r := router.WebServer()
 	r.Run(":8080")
 
-
-
 }
-
-

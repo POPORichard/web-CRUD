@@ -52,7 +52,6 @@ func SearchByNo(No string) *model.DemoOrder {
 	if data.ID == 0{
 		return nil
 	}
-	fmt.Println("======",data)
 	return &data
 }
 
