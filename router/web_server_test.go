@@ -115,7 +115,7 @@ func TestWebServer(t *testing.T) {
 		t.Fatal("Search data is not equal with data in database!")
 	}
 
-	//文件上传下载测试
+	//文件上传测试
 	path := "../../tmp/test.txt"
 	file, err := os.Open(path)
 	if err != nil {
@@ -137,7 +137,51 @@ func TestWebServer(t *testing.T) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w =httptest.NewRecorder()
 	r.ServeHTTP(w,req)
+	if w == nil{
+		t.Fatal("Upload file failed! Nothing in recorder!")
+	}else if w.Code != 201{
+		t.Fatal("Upload file failed! Status code is:",w.Code)
+	}
 
-	fmt.Println(w)
+	data = handler.SearchByNo("test")
+	if data.FileURL != "http://127.0.0.1:8080/download/test/file.txt"{
+		t.Fatal("data.File_URL is not right! Which is :",data.FileURL)
+	}
+	fmt.Println("Data update is success!")
+
+	//文件下载测试
+	req,err = http.NewRequest("GET","/download/test/file.txt",nil)
+	w =httptest.NewRecorder()
+	r.ServeHTTP(w,req)
+	if w == nil{
+		t.Fatal("Download file failed! Nothing in recorder!")
+	}else if w.Code != 200{
+		t.Fatal("Download file failed! Status code is:",w.Code)
+	}
+
+	_,err = os.Stat("./tmp/test/file/txt")
+	if err != nil{
+		os.IsExist(err)
+		fmt.Println("Download file is exist!")
+	}else{
+		t.Fatal("Download file is not exist")
+	}
+
+	err = os.RemoveAll("./tmp")
+	if err != nil{
+		t.Error("Delete tmp file failed!")
+	}
+
+
+	//生成及下载Excel测试
+	req,err = http.NewRequest("GET","/list",nil)
+	w =httptest.NewRecorder()
+	r.ServeHTTP(w,req)
+	if w == nil{
+		t.Fatal("Upload file failed! Nothing in recorder!")
+	}else if w.Code != 200{
+		t.Fatal("Upload file failed! Status code is:",w.Code)
+	}
+
 
 }

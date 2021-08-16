@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -172,6 +171,17 @@ func WebServer() *gin.Engine{
 	//文件上传
 	r.POST("/upload/:no", func(c *gin.Context) {
 		no := c.Param("no")
+
+		fmt.Println("Want to upload file to :",no)
+
+		if handler.SearchByNo(no).IsEmpty(){
+				fmt.Println("Warning! Want to upload file to not Non-existent user,id is:",no)
+				c.JSON(http.StatusNotFound,gin.H{
+					"status":"User not found",
+				})
+				return
+		}
+
 		file, err:= c.FormFile("f1")
 		if err != nil{
 			c.JSON(http.StatusInternalServerError,gin.H{
@@ -180,13 +190,15 @@ func WebServer() *gin.Engine{
 			return
 		}
 
-		log.Println(file.Filename)
+		fmt.Println("Get upload file:",file.Filename)
+
 
 		path := "./tmp/"+no+"/"
 		dst := fmt.Sprintf(path+"file.txt")
 
 		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil{
+			fmt.Println("Error! Upload failed! Failed to creat dir")
 			c.JSON(http.StatusServiceUnavailable,gin.H{
 				"status":err.Error(),
 			})
@@ -195,6 +207,7 @@ func WebServer() *gin.Engine{
 
 		err = c.SaveUploadedFile(file,dst)
 		if err != nil{
+			fmt.Println("Error! Upload failed! Failed to save uploaded file!")
 			c.JSON(http.StatusServiceUnavailable,gin.H{
 				"status":err.Error(),
 			})
@@ -202,8 +215,8 @@ func WebServer() *gin.Engine{
 		}
 
 		handler.AddFileURL(no,"http://127.0.0.1:8080/download/"+no+"/file.txt")
-
-		c.JSON(http.StatusOK, gin.H{
+		fmt.Println("File upload success!")
+		c.JSON(http.StatusCreated, gin.H{
 			"status":fmt.Sprintf("'%s' uploaded success!", file.Filename),
 		})
 	})
