@@ -103,33 +103,6 @@ func WebServer() *gin.Engine{
 			})
 		}
 
-		//if err := c.ShouldBindJSON(&order); err == nil && len(no) != 0{
-		//	fmt.Printf("\nget data: %#v\n", order)
-		//
-		//	if no != order.OrderNo {
-		//		fmt.Println(order.OrderNo)
-		//		fmt.Println("error order_NO has change")
-		//		c.JSON(http.StatusBadRequest, gin.H{
-		//			"status":"order_NO has change",
-		//		})
-		//		return
-		//	}
-		//
-		//	if err := handler.Update(no, &order); err ==nil{
-		//		c.JSON(http.StatusCreated,gin.H{
-		//			"status":no+"has change",
-		//		})
-		//	}else{
-		//		c.JSON(http.StatusInternalServerError,gin.H{
-		//			"status":"server bad!",
-		//		})
-		//	}
-		//
-		//}else{
-		//	c.JSON(http.StatusUnauthorized,gin.H{
-		//		"status":"error in data",
-		//	})
-		//}
 	})
 
 	//获取某一数据
@@ -145,15 +118,17 @@ func WebServer() *gin.Engine{
 				"status":"no such data",
 			})
 		}else{
+			dataToShow := data.OrderToShow()
 			c.JSON(http.StatusOK,gin.H{
 				"status":"GET",
-				"order_no":data.OrderNo,
-				"user_name":data.UserName,
-				"amount":data.Amount,
-				"data_status":data.Status,
-				"file_url":data.FileURL,
-				"create_time":data.CreatedAt,
-				"update_time":data.UpdatedAt,
+				"id":dataToShow.ID,
+				"order_no":dataToShow.OrderNo,
+				"user_name":dataToShow.UserName,
+				"amount":dataToShow.Amount,
+				"data_status":dataToShow.Status,
+				"file_url":dataToShow.FileURL,
+				"create_at":dataToShow.CreateAt,
+				"updated_at":dataToShow.UpdatedAt,
 			})
 		}
 	})

@@ -1,9 +1,17 @@
 package router
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"web_app/database"
@@ -41,6 +49,7 @@ func TestWebServer(t *testing.T) {
 
 	r.ServeHTTP(w,req)
 
+	//写入数据
 	if w == nil{
 		t.Fatal("Create test data failed! Nothing in recorder!")
 	}else if w.Code != 201{
@@ -92,15 +101,43 @@ func TestWebServer(t *testing.T) {
 		t.Fatal("Search data failed! Status code is:",w.Code)
 	}
 
-	if data.UserName != "test" || data.Amount != 111 || data.Status != "test"{
-		t.Fatal("data has changed!")
+	res := w.Result()
+	respond,_ := ioutil.ReadAll(res.Body)
+	var respondData model.DemoOrderShow
+	err = json.Unmarshal(respond,&respondData)
+	if err != nil{
+		t.Fatal("Get data not expect err:",err)
 	}
-	fmt.Println("Data update in success!")
 
+	if !reflect.DeepEqual(respondData,data.OrderToShow()){
+		fmt.Println(data)
+		fmt.Println(respondData)
+		t.Fatal("Search data is not equal with data in database!")
+	}
 
+	//文件上传下载测试
+	path := "../../tmp/test.txt"
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal("Open file err:",err)
+	}
+	defer file.Close()
 
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("f1", filepath.Base(path))
+	if err != nil {
+		writer.Close()
+		t.Error(err)
+	}
+	io.Copy(part, file)
+	writer.Close()
 
+	req,err = http.NewRequest("POST","/upload/test",body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	w =httptest.NewRecorder()
+	r.ServeHTTP(w,req)
 
-
+	fmt.Println(w)
 
 }
