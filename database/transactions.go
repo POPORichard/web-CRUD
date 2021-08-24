@@ -24,7 +24,8 @@ func AutoCheckEmptyURL() {
 
 	}
 }
-
+// checkEmptyURL SQL事务\检查无用的文件下载URL
+// 读取本地目录,若用户对应文件目录为空则删除数据库中的file_URL项内容
 func checkEmptyURL()error{
 	db:=Link()
 	defer db.Close()

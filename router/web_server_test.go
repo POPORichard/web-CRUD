@@ -183,5 +183,9 @@ func TestWebServer(t *testing.T) {
 		t.Fatal("Upload file failed! Status code is:",w.Code)
 	}
 
+	err = os.Remove("../list.xlsx")
+	if err != nil{
+		t.Error("Delete tmp file failed! err:",err)
+	}
 
 }

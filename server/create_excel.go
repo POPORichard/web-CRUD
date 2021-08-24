@@ -9,6 +9,7 @@ import (
 	"web_app/model"
 )
 
+// WriteToExcel 将所有数据写入表格并导出
 func WriteToExcel(data []model.DemoOrder, waitGroup *sync.WaitGroup)error{
 	defer waitGroup.Done()
 

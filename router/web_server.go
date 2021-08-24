@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"sync"
-	"time"
 	"web_app/handler"
 	"web_app/model"
 	"web_app/server"
@@ -245,8 +244,6 @@ func WebServer() *gin.Engine{
 				"status":"unable to create excel err:"+err.Error(),
 			})
 		}
-
-		time.Sleep(time.Second)
 
 		path := "../list.xlsx"
 		c.Header("Content-Type","application/txt")

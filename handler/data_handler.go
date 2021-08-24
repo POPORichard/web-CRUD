@@ -56,6 +56,7 @@ func SearchByNo(No string) *model.DemoOrder {
 }
 
 //Update 更新数据
+//输入要更新的数据的order_no 和 完整或不完整的更新信息
 func Update(no string, newData *model.DemoOrder)error{
 	db := database.Link()
 	defer db.Close()
@@ -83,6 +84,7 @@ func Update(no string, newData *model.DemoOrder)error{
 }
 
 //GetTotalNumber 获取数据总数
+//返回总数据数量 int64
 func GetTotalNumber()int64{
 	db := database.Link()
 	defer db.Close()
@@ -221,26 +223,27 @@ func Sequence(key string,data []model.DemoOrder)([]model.DemoOrder, error){
 
 //Search 按条件对name模糊搜索
 func Search(key string,datas []model.DemoOrder)([]model.DemoOrder, error){
-	lenth := len(datas)
+	length := len(datas)
 
 	//获取所有name并进行相似度排序
 	names := make([]string,0,GetTotalNumber())
 	for i :=range datas{
 		names = append(names,datas[i].UserName)
 	}
-	resule := fuzzy.RankFind(key,names)
-	sort.Sort(resule)
+	result := fuzzy.RankFind(key,names)
+	sort.Sort(result)
 
 	//对排序好的结果写入新切片
-	orderDatas := make([]model.DemoOrder,0,lenth)
-	for i := range resule{
-		orderDatas = append(orderDatas,datas[resule[i].OriginalIndex])
+	orderDatas := make([]model.DemoOrder,0, length)
+	for i := range result {
+		orderDatas = append(orderDatas,datas[result[i].OriginalIndex])
 	}
 
 	return orderDatas,nil
 }
 
-//AddFileURL 更新file_URL
+//AddFileURL 更新指定用户的file_URL
+//输入order_no和file_URL
 func AddFileURL(no,URL string){
 	order := SearchByNo(no)
 	if order ==nil{
